@@ -2,10 +2,25 @@ use actix_web::{get, post, App, HttpResponse, HttpServer, Responder};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
-enum DrinkType {
-    PourOver,
+enum BeanStyle {
     Espresso,
+    Filtered,
 }
+
+#[derive(Serialize, Deserialize)]
+enum DrinkType {
+    Aeropress,
+    IcedCoffee,
+    V60,
+    Chemex,
+}
+
+const DRINK_TYPE_VARIANTS: &[DrinkType] = &[
+    DrinkType::V60,
+    DrinkType::Chemex,
+    DrinkType::IcedCoffee,
+    DrinkType::Aeropress,
+];
 
 #[derive(Serialize, Deserialize)]
 struct Coffee {
@@ -34,9 +49,14 @@ async fn get_orders() -> HttpResponse {
                 String::from("citrus"),
             ],
         },
-        drink: DrinkType::PourOver,
+        drink: DrinkType::V60,
     }];
     HttpResponse::Ok().json(orders)
+}
+
+#[get("/drinkTypes")]
+async fn get_drink_types() -> HttpResponse {
+    HttpResponse::Ok().json(DRINK_TYPE_VARIANTS)
 }
 
 #[get("/")]
@@ -51,8 +71,14 @@ async fn echo(req_body: String) -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| App::new().service(hello).service(echo).service(get_orders))
-        .bind(("127.0.0.1", 8080))?
-        .run()
-        .await
+    HttpServer::new(|| {
+        App::new()
+            .service(hello)
+            .service(echo)
+            .service(get_orders)
+            .service(get_drink_types)
+    })
+    .bind(("127.0.0.1", 8080))?
+    .run()
+    .await
 }
