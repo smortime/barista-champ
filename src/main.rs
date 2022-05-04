@@ -13,6 +13,9 @@ enum DrinkType {
     IcedCoffee,
     V60,
     Chemex,
+    Cappuccino,
+    Americano,
+    Cortado,
 }
 
 const DRINK_TYPE_VARIANTS: &[DrinkType] = &[
@@ -20,6 +23,9 @@ const DRINK_TYPE_VARIANTS: &[DrinkType] = &[
     DrinkType::Chemex,
     DrinkType::IcedCoffee,
     DrinkType::Aeropress,
+    DrinkType::Cappuccino,
+    DrinkType::Americano,
+    DrinkType::Cortado,
 ];
 
 #[derive(Serialize, Deserialize)]
