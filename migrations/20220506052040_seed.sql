@@ -1,3 +1,4 @@
+-- Add migration script here
 INSERT INTO drink_types (drink_type)
 VALUES
 	("Aeropress"),

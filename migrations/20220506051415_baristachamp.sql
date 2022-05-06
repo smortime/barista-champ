@@ -1,10 +1,4 @@
-DROP TABLE IF EXISTS orders;
-DROP TABLE IF EXISTS customers;
-DROP TABLE IF EXISTS coffees;
-DROP TABLE IF EXISTS regions;
-DROP TABLE IF EXISTS roasters;
-DROP TABLE IF EXISTS drink_types;
-
+-- Add migration script here
 CREATE TABLE drink_types (
 	drink_type TEXT NOT NULL
 );
@@ -58,4 +52,3 @@ CREATE TABLE orders (
 			ON DELETE CASCADE
 			ON UPDATE NO ACTION
 );
-
