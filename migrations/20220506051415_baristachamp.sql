@@ -18,7 +18,7 @@ CREATE TABLE regions (
 CREATE TABLE coffees (
 	id TEXT PRIMARY KEY,
 	name TEXT,
-	tasting_notes BLOB,
+	tasting_notes TEXT,
 	style TEXT NOT NULL,
 	region_id TEXT NOT NULL,
 	roaster_id TEXT NOT NULL,

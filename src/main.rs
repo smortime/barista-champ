@@ -1,7 +1,8 @@
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use serde::{Deserialize, Serialize};
 use sqlx::sqlite::SqlitePool;
-use std::env;
+use std::{env, str::FromStr};
+use strum_macros::EnumString;
 
 #[derive(Serialize, Deserialize)]
 enum BeanStyle {
@@ -9,7 +10,7 @@ enum BeanStyle {
     Filtered,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, EnumString)]
 enum DrinkType {
     Aeropress,
     IcedCoffee,
@@ -34,7 +35,7 @@ const DRINK_TYPE_VARIANTS: &[DrinkType] = &[
 struct Coffee {
     region: String,
     roaster: String,
-    tasting_notes: Vec<String>,
+    tasting_notes: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -67,21 +68,36 @@ async fn echo(req_body: String) -> impl Responder {
     HttpResponse::Ok().body(req_body)
 }
 
-async fn get_orders_from_db(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+async fn get_orders_from_db(pool: &SqlitePool) -> Result<Vec<Order>, sqlx::Error> {
     let orders = sqlx::query!(
         r#"
-SELECT id, customer_id
-FROM orders
+SELECT cu.name, o.drink_type, c.region_name, c.roaster_name, c.notes
+FROM orders o
+JOIN 
+(SELECT c.id as id, r.name as region_name, ro.name as roaster_name, c.tasting_notes notes
+FROM coffees c
+JOIN regions r ON r.id = c.region_id
+JOIN roasters ro ON ro.id = c.roaster_id) as c ON c.id = o.coffee_id
+JOIN customers cu ON cu.id = o.customer_id
         "#,
     )
     .fetch_all(pool)
     .await?;
 
-    for order in orders {
-        print!("{:?}", order);
-    }
+    let res_orders: Vec<Order> = orders
+        .into_iter()
+        .map(|o| Order {
+            customer: o.name,
+            drink: DrinkType::from_str(&o.drink_type.unwrap()).unwrap(),
+            coffee: Coffee {
+                region: o.region_name,
+                roaster: o.roaster_name,
+                tasting_notes: o.notes.unwrap(),
+            },
+        })
+        .collect();
 
-    Ok(())
+    Ok(res_orders)
 }
 
 #[actix_web::main]
