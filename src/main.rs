@@ -1,3 +1,4 @@
+use actix_cors::Cors;
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use serde::{Deserialize, Serialize};
 use sqlx::sqlite::SqlitePool;
@@ -115,6 +116,7 @@ async fn main() -> std::io::Result<()> {
     let pool_data = web::Data::new(pool);
     HttpServer::new(move || {
         App::new()
+            .wrap(Cors::permissive())
             .service(hello)
             .service(echo)
             .service(get_orders)
