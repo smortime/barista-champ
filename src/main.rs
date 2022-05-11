@@ -1,30 +1,12 @@
 mod barista;
+mod barista_routes;
 mod dal;
 
 use actix_cors::Cors;
-use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{web, App, HttpServer};
+use barista_routes::{get_drink_types, get_orders, hello, get_customer_orders};
 use sqlx::sqlite::SqlitePool;
 use std::env;
-
-use crate::{barista::DRINK_TYPE_VARIANTS, dal::get_orders_from_db};
-
-#[get("/orders")]
-async fn get_orders(pool: web::Data<sqlx::Pool<sqlx::Sqlite>>) -> HttpResponse {
-    match get_orders_from_db(&pool).await {
-        Ok(o) => HttpResponse::Ok().json(o),
-        Err(..) => HttpResponse::ExpectationFailed().json("oh no"),
-    }
-}
-
-#[get("/drinkTypes")]
-async fn get_drink_types() -> HttpResponse {
-    HttpResponse::Ok().json(DRINK_TYPE_VARIANTS)
-}
-
-#[get("/")]
-async fn hello() -> impl Responder {
-    HttpResponse::Ok().body("Hello world!")
-}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -42,9 +24,13 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .wrap(Cors::permissive())
+            .service(
+                web::scope("/app")
+                    .route("/orders", web::get().to(get_orders))
+                    .route("/orders/{customer_id}", web::get().to(get_customer_orders))
+                    .route("/drinkTypes", web::get().to(get_drink_types)),
+            )
             .service(hello)
-            .service(get_orders)
-            .service(get_drink_types)
             .app_data(pool_data.clone())
     })
     .bind(("127.0.0.1", 8080))?
