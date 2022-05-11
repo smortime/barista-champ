@@ -1,8 +1,9 @@
 use std::str::FromStr;
 
+use actix_web::web;
 use sqlx::SqlitePool;
 
-use crate::barista::{Coffee, DrinkType, Order};
+use crate::{barista::{Coffee, DrinkType, Order}, barista_routes::OrderInfo};
 
 pub async fn get_orders_from_db(pool: &SqlitePool) -> Result<Vec<Order>, sqlx::Error> {
     let orders = sqlx::query!(
@@ -67,4 +68,18 @@ WHERE cu.id = $1
         .collect();
 
     Ok(res_orders)
+}
+
+pub async fn insert_order(pool: &SqlitePool, order: web::Json<OrderInfo>) -> Result<(), sqlx::Error> {
+    sqlx::query!(
+        r#"
+INSERT INTO orders (id, coffee_id, drink_type, customer_id)
+VALUES
+        ($1, $2, $3, $4)
+        "#, order.id, order.coffee_id, order.drink_type, order.customer_id
+    )
+    .execute(pool)
+    .await?;
+
+    Ok(())
 }

@@ -4,7 +4,7 @@ mod dal;
 
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
-use barista_routes::{get_drink_types, get_orders, hello, get_customer_orders};
+use barista_routes::{get_drink_types, get_orders, hello, get_customer_orders, post_order};
 use sqlx::sqlite::SqlitePool;
 use std::env;
 
@@ -28,7 +28,8 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/app")
                     .route("/orders", web::get().to(get_orders))
                     .route("/orders/{customer_id}", web::get().to(get_customer_orders))
-                    .route("/drinkTypes", web::get().to(get_drink_types)),
+                    .route("/drinkTypes", web::get().to(get_drink_types))
+                    .route("/orders", web::post().to(post_order)),
             )
             .service(hello)
             .app_data(pool_data.clone())
