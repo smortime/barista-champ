@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use strum_macros::EnumString;
+use strum_macros::{EnumString, Display};
 
 #[derive(Serialize, Deserialize)]
 pub enum BeanStyle {
@@ -16,6 +16,13 @@ pub enum DrinkType {
     Cappuccino,
     Americano,
     Cortado,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, EnumString, Display)]
+pub enum DrinkStatus {
+    Done,
+    Ready,
+    Preparing,
 }
 
 pub const DRINK_TYPE_VARIANTS: &[DrinkType] = &[
@@ -40,4 +47,5 @@ pub struct Order {
     pub customer: String,
     pub coffee: Coffee,
     pub drink: DrinkType,
+    pub status: DrinkStatus,
 }

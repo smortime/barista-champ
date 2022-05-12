@@ -36,10 +36,10 @@ VALUES
 	("3476a111-4f48-43cd-8535-f8d568333027", "Kristi"),
 	("e4373e59-05f0-4e20-87f7-b2578243f31a", "Schuyler");
 
-INSERT INTO orders (id, coffee_id, drink_type, customer_id)
+INSERT INTO orders (id, coffee_id, drink_type, drink_status, customer_id)
 VALUES
-	("e637127a-155f-427e-8449-342b6ceea53f", "704b8461-57b3-4b13-aedc-0c4dae9257c1", "V60", "3476a111-4f48-43cd-8535-f8d568333027"),
-	("f01b53b0-24da-41a3-b8ab-f83614f57549", "4d61e2f7-d681-4a8c-bca8-ccfacceb1d36", "Cortado", "e4373e59-05f0-4e20-87f7-b2578243f31a");
+	("e637127a-155f-427e-8449-342b6ceea53f", "704b8461-57b3-4b13-aedc-0c4dae9257c1", "V60", "Ready", "3476a111-4f48-43cd-8535-f8d568333027"),
+	("f01b53b0-24da-41a3-b8ab-f83614f57549", "4d61e2f7-d681-4a8c-bca8-ccfacceb1d36", "Cortado", "Preparing", "e4373e59-05f0-4e20-87f7-b2578243f31a");
 
 
 

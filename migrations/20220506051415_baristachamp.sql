@@ -29,7 +29,7 @@ CREATE TABLE coffees (
 	FOREIGN KEY (roaster_id)
 		REFERENCES roasters (id)
 			ON DELETE CASCADE
-			ON UPDATE NO ACTION
+				ON UPDATE NO ACTION
 );
 
 CREATE TABLE customers (
@@ -42,6 +42,7 @@ CREATE TABLE orders (
 	id TEXT PRIMARY KEY,
 	coffee_id TEXT,
 	drink_type TEXT,
+	drink_status TEXT,
 	customer_id TEXT,
 	FOREIGN KEY (coffee_id)
 		REFERENCES coffees (id)

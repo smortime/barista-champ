@@ -1,14 +1,15 @@
 use std::str::FromStr;
+use std::string::ToString;
 
 use actix_web::web;
 use sqlx::SqlitePool;
 
-use crate::{barista::{Coffee, DrinkType, Order}, barista_routes::OrderInfo};
+use crate::{barista::{Coffee, DrinkType, Order, DrinkStatus}, barista_routes::OrderInfo};
 
 pub async fn get_orders_from_db(pool: &SqlitePool) -> Result<Vec<Order>, sqlx::Error> {
     let orders = sqlx::query!(
         r#"
-SELECT cu.name, o.drink_type, c.region_name, c.roaster_name, c.notes
+SELECT cu.name, o.drink_type, c.region_name, c.roaster_name, c.notes, o.drink_status
 FROM orders o
 JOIN 
 (SELECT c.id as id, r.name as region_name, ro.name as roaster_name, c.tasting_notes notes
@@ -26,6 +27,7 @@ JOIN customers cu ON cu.id = o.customer_id
         .map(|o| Order {
             customer: o.name,
             drink: DrinkType::from_str(&o.drink_type.unwrap()).unwrap(),
+            status: DrinkStatus::from_str(&o.drink_status.unwrap()).unwrap(),
             coffee: Coffee {
                 region: o.region_name,
                 roaster: o.roaster_name,
@@ -40,7 +42,7 @@ JOIN customers cu ON cu.id = o.customer_id
 pub async fn get_customer_orders_from_db(pool: &SqlitePool, customer_id: &str) -> Result<Vec<Order>, sqlx::Error> {
     let orders = sqlx::query!(
         r#"
-SELECT cu.name, o.drink_type, c.region_name, c.roaster_name, c.notes
+SELECT cu.name, o.drink_type, c.region_name, c.roaster_name, c.notes, o.drink_status
 FROM orders o
 JOIN 
 (SELECT c.id as id, r.name as region_name, ro.name as roaster_name, c.tasting_notes notes
@@ -59,6 +61,7 @@ WHERE cu.id = $1
         .map(|o| Order {
             customer: o.name,
             drink: DrinkType::from_str(&o.drink_type.unwrap()).unwrap(),
+            status: DrinkStatus::from_str(&o.drink_status.unwrap()).unwrap(),
             coffee: Coffee {
                 region: o.region_name,
                 roaster: o.roaster_name,
@@ -71,12 +74,13 @@ WHERE cu.id = $1
 }
 
 pub async fn insert_order(pool: &SqlitePool, order: web::Json<OrderInfo>) -> Result<(), sqlx::Error> {
+    let preparing = DrinkStatus::Preparing.to_string();
     sqlx::query!(
         r#"
-INSERT INTO orders (id, coffee_id, drink_type, customer_id)
+INSERT INTO orders (id, coffee_id, drink_type, drink_status, customer_id)
 VALUES
-        ($1, $2, $3, $4)
-        "#, order.id, order.coffee_id, order.drink_type, order.customer_id
+        ($1, $2, $3, $4, $5)
+        "#, order.id, order.coffee_id, order.drink_type, preparing, order.customer_id
     )
     .execute(pool)
     .await?;
